@@ -1,26 +1,33 @@
+import os
 import dropbox
+from dropbox.files import WriteMode
 
 class TransferData:
-    def __init__(self, access_token):
-        self.access_token = access_token
+    def __init__(self,access_token):
+        self.access_token =  access_token
 
     def upload_file(self, file_from, file_to):
         dbx = dropbox.Dropbox(self.access_token)
 
+        for root, dirs, files in os.walk(file_from):
 
-        f = open(file_from, 'rb')
-        dbx.files_upload(f.read(), file_to)
+            for filename in files:
+                local_path = os.path.join(root, filename)
+
+                relative_path = os.path.relpath(local_path, file_from)
+                dropbox_path = os.path.join(file_to, relative_path)
+          
+                with open(local_path, 'rb') as f:
+                    dbx.files_upload(f.read(), dropbox_path, mode=WriteMode('overwrite'))
 
 def main():
-    access_token = 'sl.BAN0vkhkye0_89DbLtcFzLQ0CzVQBzwI9EdstDfn8XpEhsqBtNPUakdBNX40Buubi4dSTEZiqzbZoJtjThoLw9daynaMaGIKXSjBvhh_-8FfFRfFxQOROWwIuGRYFni2u_ki9s0'
+    access_token = 'riFu6Ybhc9AAAAAAAAAAHWkfE9AiGyD6n4254tOxesw7ShRjGjFhrjhRVa3NX3mx'
     transferData = TransferData(access_token)
 
-    file_from = input("Enter the file path to transfer : -")
-    file_to = input("enter the full path to upload to dropbox:- ") 
-    
-   
-    transferData.upload_file(file_from, file_to)
-    print("file has been moved !!!")
+    file_from = str(input("Enter the folder path to transfer : -"))
+    file_to = input("enter the full path to upload to dropbox:- ")  # This is the full path to upload the file to, including name that you wish the file to be called once uploaded.
 
+    transferData.upload_file(file_from,file_to)
+    print("file has been moved !!!")
 
 main()
